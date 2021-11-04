@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block head_title %}My Page Title{% endblock %}
+
+{% block body_content %}
+ <table class="table"> <thead>
+   <tr>
+    <th>id</th>
+    <th>datetime</th>
+    <th>amount</th>
+   </tr>
+  </thead>
+  <tbody id="transaction_tbody">
+  </tbody>
+ </table>
+ <button id="update_button" class="btn btn-primary mb-3">Refresh</button>
+ <div class="row g-3">
+  <div class="col-auto">
+   <label for="datetime_input" class="visually-hidden">Date Time</label>
+   <input id="datetime_input" name="datetime" class="form-control" type="datetime-local" placeholder="Date Time">
+  </div>
+  <div class="col-auto">
+   <label for="amount_input" class="visually-hidden">Amount</label>
+   <input id="amount_input" name="amount" class="form-control" type="number" placeholder="Amount">
+  </div>
+  <div class="col-auto">
+   <button id="submit_button" class="btn btn-primary mb-3">Submit</button>
+  </div>
+ </div>
+{% endblock %}
+
+{% block body_script %}
+ <script>
+  submit_button.addEventListener("click", () => {
+   let datetime = datetime_input.value;
+   let amount = amount_input.value;
+
+   datetime = (new Date(datetime).getTime()) // Change to Epoch
+
+   let data = new FormData();
+   data.append("datetime", datetime)
+   data.append("amount", amount)
+
+   fetch("/api/v1/transaction", {
+    method: "POST",
+    body: data,
+   });
+
+   amount_input.value = "";
+   datetime_input.value = "";
+  });
+
+  update_button.addEventListener("click", () => {
+   fetch("/api/v1/transaction")
+    .then(response => response.json())
+    .then(transaction_list => {
+     transaction_tbody.innerHTML = "";
+     for (transaction of transaction_list) {
+      let tr = document.createElement('tr');
+      let td_id = document.createElement('td');
+      let td_datetime = document.createElement('td');
+      let td_amount = document.createElement('td');
+      td_id.textContent = transaction[0];
+      td_datetime.textContent = transaction[1];
+      td_amount.textContent = transaction[2];
+      tr.appendChild(td_id);
+      tr.appendChild(td_datetime);
+      tr.appendChild(td_amount);
+      transaction_tbody.appendChild(tr);
+     }
+    });
+  });
+ </script>
+{% endblock %}
+

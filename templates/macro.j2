@@ -1,0 +1,27 @@
+{% macro x(y, z) %}
+	{% for a in z %}
+		{% if a is string %}
+			{{ y }} int {{ a }}
+		{% elif a | length == 1 %}
+			{{ y }} int {{ a[0] }}
+		{% elif a | length > 1 %}
+			{{ yy(y, a) }}
+		{% endif %}
+	{% endfor %}
+{% endmacro %}
+
+{% macro yy(z, a) %}
+{% for b in a %}
+{% if loop.index > 1 %}
+{{ z }} int {{ a[0] }}.{{ b }}
+{% endif %}
+{% endfor %}
+{% endmacro %}
+
+{{
+x("VRF11", [
+["xe-1/0/2"],
+["xe-1/0/3","181","182","183"],
+"xe-1/0/4.200"
+])
+}}

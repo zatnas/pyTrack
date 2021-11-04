@@ -1,0 +1,10 @@
+html, body {
+	height: 100%;
+}
+
+form {
+	padding: 1rem;
+	background-color: #eee5;
+	border: 1px solid #0001;
+	border-radius: .25rem;
+}
