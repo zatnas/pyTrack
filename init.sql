@@ -1,12 +1,12 @@
 CREATE TABLE 'Account' (
 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-name INTEGER NOT NULL,
+name TEXT NOT NULL,
 color TEXT NOT NULL
 );
 
 CREATE TABLE 'CategoryGroup' (
 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-name INTEGER NOT NULL,
+name TEXT NOT NULL,
 color TEXT NOT NULL,
 icon TEXT NOT NULL
 );
@@ -14,7 +14,7 @@ icon TEXT NOT NULL
 CREATE TABLE 'Category' (
 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 categorygroup_id INTEGER NOT NULL,
-name INTEGER NOT NULL,
+name TEXT NOT NULL,
 color TEXT NOT NULL,
 icon TEXT NOT NULL,
 FOREIGN KEY (categorygroup_id) REFERENCES 'CategoryGroup'(id)
@@ -38,7 +38,7 @@ CREATE TABLE 'Transaction' (
 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 account_id INTEGER NOT NULL,
 category_id INTEGER NOT NULL,
-transactiongroup_id INTEGER NOT NULL,
+transactiongroup_id INTEGER,
 attachment_id INTEGER,
 datetime INTEGER NOT NULL,
 amount REAL NOT NULL,
@@ -52,8 +52,8 @@ FOREIGN KEY (attachment_id) REFERENCES 'Attachment'(id)
 
 CREATE TABLE 'Tag' (
 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-color TEXT NOT NULL,
-name TEXT NOT NULL
+name TEXT NOT NULL,
+color TEXT NOT NULL
 );
 
 CREATE TABLE 'TransactionTag' (
@@ -62,4 +62,12 @@ tag_id INTEGER NOT NULL,
 FOREIGN KEY (transaction_id) REFERENCES 'Transaction'(id),
 FOREIGN KEY (tag_id) REFERENCES 'Tag'(id),
 PRIMARY KEY (transaction_id, tag_id)
+);
+
+CREATE TABLE 'TransactionGroupTag' (
+transactiongroup_id INTEGER NOT NULL,
+tag_id INTEGER NOT NULL,
+FOREIGN KEY (transactiongroup_id) REFERENCES 'TransactionGroup'(id),
+FOREIGN KEY (tag_id) REFERENCES 'Tag'(id),
+PRIMARY KEY (transactiongroup_id, tag_id)
 );
