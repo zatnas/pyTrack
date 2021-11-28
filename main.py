@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from flask import Flask, redirect, url_for, render_template, request, session, jsonify
+from flask import Flask, render_template
 from datetime import timedelta
 import os
 
@@ -18,9 +18,11 @@ app.secret_key = config.SECRET_KEY
 app.register_blueprint(api_bp, url_prefix="/api/v1")
 app.permanent_session_lifetime = timedelta(days=3)
 
+
 @app.route("/transaction", methods=["GET"])
 def transaction():
     return render_template("transaction.html")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
