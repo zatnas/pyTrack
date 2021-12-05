@@ -41,7 +41,7 @@ def insert(table_name, column_values):
 def select(table_name):
     with con() as db:
         c = db.cursor()
-        c.execute("SELECT * FROM '?'", table_name)
+        c.execute(f"SELECT * FROM '{ table_name }'")
         r = c.fetchall()
     return r
 
