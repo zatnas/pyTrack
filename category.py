@@ -1,23 +1,20 @@
 import db
+from util import Validate
 
 TABLE_NAME = "Category"
-DEFAULT_NAME = "General"
-DEFAULT_COLOR = "FFFFFF"
-DEFAULT_ICON = "None"
+REQUIRED_PARAMS = {
+    "categorygroup_id": True,
+    "name": True,
+    "color": True,
+    "icon": True,
+}
 
 
-def add(
-    categorygroup_id,
-    name,
-    color,
-    icon,
-):
-    column_values = {
-        "categorygroup_id": categorygroup_id,
-        "name": name,
-        "color": color,
-        "icon": icon,
-    }
+def validate(params):
+    return Validate(REQUIRED_PARAMS, params)
+
+
+def add(column_values):
     return db.insert(TABLE_NAME, column_values)
 
 

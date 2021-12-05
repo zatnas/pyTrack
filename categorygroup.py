@@ -1,18 +1,19 @@
 import db
+from util import Validate
 
 TABLE_NAME = "CategoryGroup"
+REQUIRED_PARAMS = {
+    "name": True,
+    "color": True,
+    "icon": True,
+}
 
 
-def add(
-    name,
-    color,
-    icon,
-):
-    column_values = {
-        "name": name,
-        "color": color,
-        "icon": icon,
-    }
+def validate(params):
+    return Validate(REQUIRED_PARAMS, params)
+
+
+def add(column_values):
     return db.insert(TABLE_NAME, column_values)
 
 
