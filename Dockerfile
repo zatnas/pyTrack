@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD [ "python", "./app.py" ]
+CMD [ "waitress-serve", "--host", "127.0.0.1", "expense_tracker:app" ]
