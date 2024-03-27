@@ -1,11 +1,11 @@
-version: '3.8'
-
 services:
   expense-tracker: 
+    environment:
+      FLASK_DEBUG: False
     build:
       context: .
     # flask requires SIGINT to stop gracefully
     # (default stop signal from Compose is SIGTERM)
     stop_signal: SIGINT
     ports:
-      - '5000:5000'
+      - 5000:5000
