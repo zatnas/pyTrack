@@ -18,14 +18,23 @@ from dotenv import load_dotenv
 
 load_dotenv()
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql+psycopg://admin:admin@postgresql:5432/expense_tracker"
 
 
 class Base(DeclarativeBase):
     pass
 
 
-db = SQLAlchemy(app, model_class=Base)
+db = SQLAlchemy(
+    app,
+    model_class=Base,
+    engine_options={
+        "connect_args": {
+            "connect_timeout": 60
+        }
+    }
+)
 
 
 @dataclass
@@ -69,6 +78,15 @@ with app.app_context():
         db.session.add(Account(name=a))
     db.session.add(Category(name="Unknown"))
     db.session.commit()
+
+
+@app.route("/category", methods=["GET"])
+def category_read():
+    return jsonify(
+        db.session.execute(
+            db.select(Category)
+        ).scalars().all()
+    )
 
 
 @app.route("/category/new", methods=["POST"])
@@ -125,7 +143,7 @@ def transaction_create(account_id: int):
 
 
 @app.route("/account/<int:account_id>/import/<string:bank_name>", methods=["POST"])
-def transaction_import(account_id: int,bank_name: str):
+def transaction_import(account_id: int, bank_name: str):
     if not bank_name:
         print("missing bank_name")
         abort(400)
@@ -137,7 +155,7 @@ def transaction_import(account_id: int,bank_name: str):
     if bank_name == "cimb":
         cimb_csv_io = StringIO(file.read().decode("utf-8"))
         transaction_list = cimb_import_parser(account_id, cimb_csv_io)
-        [ db.session.add(t) for t in transaction_list ]
+        [db.session.add(t) for t in transaction_list]
         db.session.commit()
         return jsonify({
             "result": "success",
@@ -146,15 +164,18 @@ def transaction_import(account_id: int,bank_name: str):
 
     return Response(status=500)
 
+
 def cimb_import_parser(account_id, csvfile):
     cimb_csv = csv.DictReader(csvfile, delimiter=',')
     transaction_list = []
     for row in cimb_csv:
         date_time = datetime.strptime(row['Date'], "%d-%b-%Y")
-        date_time_localized = date_time.replace(tzinfo=timezone(timedelta(hours=8)))
+        date_time_localized = date_time.replace(
+            tzinfo=timezone(timedelta(hours=8))
+        )
         date_time_utc = date_time.astimezone(tz=timezone.utc)
         epoch = date_time_utc.timestamp()
-        details = row['Transaction Details'].strip().replace('|','\n')
+        details = row['Transaction Details'].strip().replace('|', '\n')
         if row['Money In']:
             currency, amount = re.fullmatch(
                 r"(?P<currency>\w+)\s+(?P<amount>[0-9.]+)",
@@ -173,7 +194,7 @@ def cimb_import_parser(account_id, csvfile):
         transaction_list.append(
             Transaction(
                 account_id=account_id,
-                category_id=0,
+                category_id=1,
                 amount=amount,
                 details=details,
                 datetime=epoch,
@@ -185,6 +206,6 @@ def cimb_import_parser(account_id, csvfile):
 
 if __name__ == "__main__":
     app.run(
-            host="0.0.0.0",
-            port=5000,
-            )
+        host="0.0.0.0",
+        port=5000,
+    )

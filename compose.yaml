@@ -1,11 +1,28 @@
 services:
+  postgresql:
+    image: postgres
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=expense_tracker
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
   expense-tracker: 
     environment:
       FLASK_DEBUG: False
     build:
       context: .
-    # flask requires SIGINT to stop gracefully
-    # (default stop signal from Compose is SIGTERM)
     stop_signal: SIGINT
+    restart: unless-stopped
     ports:
       - 5000:5000
+    depends_on:
+      - postgresql
+
+volumes:
+  postgresql_data: {}
