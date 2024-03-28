@@ -10,6 +10,7 @@ from io import StringIO
 from flask import abort, jsonify
 from flask import Flask
 from flask import Response, request
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import DeclarativeBase
@@ -18,7 +19,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 app = Flask(__name__)
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+app.wsgi_app = ProxyFix(
+    app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql+psycopg://admin:admin@postgresql:5432/expense_tracker"
 
 
