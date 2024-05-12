@@ -75,6 +75,8 @@ class Transaction(db.Model):
 
 with app.app_context():
     db.create_all()
+
+    # Dummy data
     accounts = [
         "My Account",
         "Account 1",
