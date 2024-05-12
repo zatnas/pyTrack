@@ -44,6 +44,9 @@ db = SQLAlchemy(
 class Account(db.Model):
     __tablename__ = "account"
     id: Mapped[int] = mapped_column(primary_key=True)
+    currency: Mapped[str] = mapped_column(
+            nullable=True
+    )
     name: Mapped[str]
 
 
@@ -65,7 +68,6 @@ class Transaction(db.Model):
     amount: Mapped[float]
     details: Mapped[str]
     datetime: Mapped[int]
-    currency: Mapped[str]
     account_id: Mapped[int] = mapped_column(ForeignKey("account.id"))
     category_id: Mapped[int] = mapped_column(ForeignKey("category.id"))
 
@@ -201,7 +203,6 @@ def cimb_import_parser(account_id, csvfile):
                 amount=amount,
                 details=details,
                 datetime=epoch,
-                currency=currency,
             )
         )
     return transaction_list
