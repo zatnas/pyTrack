@@ -106,11 +106,20 @@ def category_create():
 
 
 @app.route("/account", methods=["GET"])
-def account_read():
+def account_read_all():
     accounts = db.session.execute(
         db.select(Account)
     ).scalars().all()
     return jsonify(accounts)
+
+
+@app.route("/account/<int:account_id>", methods=["GET"])
+def account_read_one(account_id: int):
+    account = db.session.execute(
+        db.select(Account)
+        .where(Account.id == account_id)
+    ).scalars().one()
+    return jsonify(account)
 
 
 @app.route("/account/new", methods=["POST"])
