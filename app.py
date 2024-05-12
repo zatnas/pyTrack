@@ -198,6 +198,7 @@ def cimb_import_parser(account_id, csvfile):
                 r"(?P<currency>\w+)\s+(?P<amount>[0-9.]+)",
                 row['Money In']
             ).groups()
+            amount = float(amount)
         elif row['Money Out']:
             currency, amount = re.fullmatch(
                 r"(?P<currency>\w+)\s+(?P<amount>[0-9.]+)",
