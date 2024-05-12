@@ -47,6 +47,7 @@ class Account(db.Model):
     currency: Mapped[str] = mapped_column(
             nullable=True
     )
+    total_amount: Mapped[float]
     name: Mapped[str]
 
 
@@ -80,7 +81,7 @@ with app.app_context():
         "Account 2",
     ]
     for a in accounts:
-        db.session.add(Account(name=a))
+        db.session.add(Account(name=a, total_amount=0))
     db.session.add(Category(name="Unknown"))
     db.session.commit()
 
@@ -142,8 +143,7 @@ def transaction_create(account_id: int):
         amount=request.form["amount"],
         datetime=request.form["datetime"],
     )
-    db.session.add(transaction)
-    db.session.commit()
+    insert_transaction([transaction])
     return Response(status=204)
 
 
@@ -160,14 +160,26 @@ def transaction_import(account_id: int, bank_name: str):
     if bank_name == "cimb":
         cimb_csv_io = StringIO(file.read().decode("utf-8"))
         transaction_list = cimb_import_parser(account_id, cimb_csv_io)
-        [db.session.add(t) for t in transaction_list]
-        db.session.commit()
+        insert_transaction(transaction_list)
         return jsonify({
             "result": "success",
             "msg": "transactions have been imported"
         })
 
     return Response(status=500)
+
+
+def insert_transaction(transaction_list: list[Transaction]):
+    account_total_added = {}
+    for transaction in transaction_list:
+        if not transaction.account_id in account_total_added:
+            account_total_added[transaction.account_id] = 0
+        account_total_added[transaction.account_id] += transaction.amount
+        db.session.add(transaction)
+    for account_id, total_added in account_total_added.items():
+        account = Account.query.get(account_id)
+        account.total_amount += total_added
+    db.session.commit()
 
 
 def cimb_import_parser(account_id, csvfile):
